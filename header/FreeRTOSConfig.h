@@ -44,7 +44,7 @@
  *----------------------------------------------------------*/
 
 #define configUSE_PREEMPTION		1
-#define configUSE_IDLE_HOOK			0
+#define configUSE_IDLE_HOOK			1
 #define configUSE_TICK_HOOK			1
 #define configCPU_CLOCK_HZ			( ( unsigned long ) 60000000 )	/* =12.0MHz xtal multiplied by 5 using the PLL. */
 #define configTICK_RATE_HZ			( ( TickType_t ) 1000 )
@@ -83,12 +83,13 @@ extern int transmit_in, transmit_out, transmit_total;
 extern int receive_in, receive_out, receive_total;
 extern int load1_in, load1_out, load1_total;
 extern int load2_in, load2_out, load2_total;
-extern int totalTime;
+extern int totalExecutionTime;
 extern float systemLoad;
 
 
 #define traceTASK_SWITCHED_IN() do\
                                    {\
+																		 GPIO_write(PORT_1, PIN7, PIN_IS_LOW);		/*Reset Idle Task GPIO*/\
 																		 if((int)pxCurrentTCB -> pxTaskTag == 1)\
 																		 {\
 																			 GPIO_write(PORT_1 , PIN1 , PIN_IS_HIGH);\
@@ -161,8 +162,8 @@ extern float systemLoad;
 																			  load2_out = T1TC; \
 																				load2_total += (load2_out - load2_in );\
 																		 }\
-																		 totalTime = T1TC;\
-																		 systemLoad = (float)(btn1_total + btn2_total + transmit_total + receive_total + load1_total + load2_total) / totalTime * 100;\
+																		 totalExecutionTime = T1TC;\
+																		 systemLoad = (float)(btn1_total + btn2_total + transmit_total + receive_total + load1_total + load2_total) / totalExecutionTime * 100;\
 																	 }while(0)
 
 #define configUSE_STATS_FORMATTING_FUNCTIONS 1
